@@ -1,78 +1,54 @@
 package edu.campusnum.algo.maze;
 
 import edu.campusnum.algo.maze.model.Direction;
-import edu.campusnum.algo.maze.model.Maze;
 import edu.campusnum.algo.maze.model.MazeCell;
+import edu.campusnum.algo.maze.model.Solver;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 class LabyDraw extends JPanel implements LabyInterface {
 
 	List<MazeCell> maze;
+	Solver solver;
+	int width;
+	int cellSize;
 
-	Zorro zorro;
-	int[] exit = {5, 5};
-
-	public LabyDraw(List<MazeCell> maze) {
+	public LabyDraw(List<MazeCell> maze, Solver solver) {
 		this.maze = maze;
-		this.zorro = new Zorro();
+		this.solver = solver;
+		this.width = getWidth() - 100;
+		this.cellSize = width / (int) Math.sqrt(this.maze.size());
 	}
-
-	public void getOut() {
-		int count = 0;
-		while (this.zorro.getPosX() != this.exit[0] && this.zorro.getPosY() != this.exit[1]) {
-			for (MazeCell cell : this.maze) {
-				if (cell.isStart()) {
-					this.zorro.setPosX(cell.getPosX());
-					this.zorro.setPosY(cell.getPosY());
-					return;
-				}
-				if (cell.isExit()) {
-					this.exit = new int[]{cell.getPosX(), cell.getPosY()};
-				}
-				if (cell.getPosX() == zorro.getPosX() && cell.getPosY() == zorro.getPosY()) {
-					System.out.println("Zorro is in cell " + cell.getPosX() + " " + cell.getPosY());
-					return;
-				}
-				if (this.zorro.getPosX() == this.exit[0] && this.zorro.getPosY() == this.exit[1]) {
-					System.out.println("Zorro is out !");
-					return;
-				}
-				if (!cell.hasWall(Direction.NORTH)) {
-					if (cell.getPosX() == this.zorro.getPosX() && cell.getPosY() == this.zorro.getPosY() - 1) {
-						System.out.println("Zorro is going north");
-						this.zorro.setPosY(this.zorro.getPosY() - 1);
-						break;
-					}
-				}
-			}
-		}
-	}
-
 
 	public void drawLaby(Graphics g) {
-		System.out.println("drawLaby");
-//		System.out.println(this.maze);
 		int width = getWidth() - 100;
 		int cellSize = width / (int) Math.sqrt(this.maze.size());
+
 		for (MazeCell cell : this.maze) {
-			if (cell.hasWall(Direction.NORTH)) {
+			int x = cell.getPosX() * cellSize;
+			int y = cell.getPosY() * cellSize;
+
+			if (cell.hasWall(Direction.NORTH) || cell.isStart()) {
 				g.setColor(Color.BLACK);
-				g.drawLine(cell.getPosX() * cellSize, cell.getPosY() * cellSize, cell.getPosX() * cellSize + cellSize, cell.getPosY() * cellSize);
+				g.drawLine(x, y, x + cellSize, y);
 			}
-			if (cell.hasWall(Direction.EAST)) {
+
+			if (cell.hasWall(Direction.EAST) || cell.isExit()) {
 				g.setColor(Color.BLACK);
-				g.drawLine(cell.getPosX() * cellSize + cellSize, cell.getPosY() * cellSize, cell.getPosX() * cellSize + cellSize, cell.getPosY() * cellSize + cellSize);
+				g.drawLine(x + cellSize, y, x + cellSize, y + cellSize);
 			}
+
 			if (cell.hasWall(Direction.SOUTH)) {
 				g.setColor(Color.BLACK);
-				g.drawLine(cell.getPosX() * cellSize, cell.getPosY() * cellSize + cellSize, cell.getPosX() * cellSize + cellSize, cell.getPosY() * cellSize + cellSize);
+				g.drawLine(x, y + cellSize, x + cellSize, y + cellSize);
 			}
+
 			if (cell.hasWall(Direction.WEST)) {
 				g.setColor(Color.BLACK);
-				g.drawLine(cell.getPosX() * cellSize, cell.getPosY() * cellSize, cell.getPosX() * cellSize, cell.getPosY() * cellSize + cellSize);
+				g.drawLine(x, y, x, y + cellSize);
 			}
 			if (cell.isStart()) {
 				drawStart(g, cell, cellSize);
@@ -83,27 +59,36 @@ class LabyDraw extends JPanel implements LabyInterface {
 		}
 	}
 
-	public void drawPath() {
+	public void drawPath(ArrayList<MazeCell> listCell, Graphics2D g) {
 		System.out.println("drawPath");
+		int width = 1000;
+		int cellSize = width / (int) Math.sqrt(this.maze.size());
+		for (int i = 0; i < listCell.size() - 1; i++) {
+			MazeCell currentCell = listCell.get(i);
+			MazeCell nextCell = listCell.get(i + 1);
+			g.setColor(new Color(218, 247, 166));
+			g.setStroke(new BasicStroke(10));
+			g.drawLine((currentCell.getPosX() * cellSize) + cellSize/2, (currentCell.getPosY() * cellSize) +cellSize/2, (nextCell.getPosX() * cellSize) + cellSize/2, (nextCell.getPosY()* cellSize)+cellSize/2);
+		}
 	}
 
 	public void drawStart(Graphics g, MazeCell cell, int cellSize) {
 		System.out.println("drawStart");
-		g.setColor(Color.GREEN);
-		g.fillRect(cell.getPosX() * cellSize, cell.getPosY() * cellSize, cellSize, cellSize);
+		g.setColor(new Color(  27, 155, 20 ));
+		g.fillOval((cell.getPosX() * cellSize)+5, (cell.getPosY() * cellSize)+5, cellSize-10, cellSize-10);
 	}
 
 	public void drawEnd(Graphics g, MazeCell cell, int cellSize) {
 		System.out.println("drawEnd");
-		g.setColor(Color.RED);
-		g.fillRect(cell.getPosX() * cellSize, cell.getPosY() * cellSize, cellSize, cellSize);
+		g.setColor(new Color( 199, 0, 57));
+		g.fillOval((cell.getPosX() * cellSize)+5, (cell.getPosY() * cellSize)+5, cellSize-10, cellSize-10);
 	}
 
 	@Override
 	public void paintComponent(Graphics g) {
+		g.translate(50, 25);
 		Graphics2D g2d = (Graphics2D) g;
 		drawLaby(g2d);
-		getOut();
+		drawPath(this.solver.solve(g2d), g2d);
 	}
-
 }

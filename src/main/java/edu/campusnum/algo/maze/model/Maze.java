@@ -3,20 +3,20 @@ package edu.campusnum.algo.maze.model;
 import java.util.List;
 
 public class Maze {
-	List<MazeCell> maze;
+	List<MazeCell> cells;
 	public Maze(List<MazeCell> cellList) {
-		setMaze(cellList);
+		setCells(cellList);
 	}
 
-	public List<MazeCell> getMaze() {
-		return maze;
+	public List<MazeCell> getCells() {
+		return cells;
 	}
 
-	public void setMaze(List<MazeCell> maze) {
-		this.maze = maze;
+	public void setCells(List<MazeCell> cells) {
+		this.cells = cells;
 	}
 	public MazeCell getCell(int x, int y) {
-		for (MazeCell cell : this.maze) {
+		for (MazeCell cell : this.cells) {
 			if (cell.getPosX() == x && cell.getPosY() == y) {
 				return cell;
 			}
@@ -24,7 +24,7 @@ public class Maze {
 		return null;
 	}
 	public MazeCell getStart() {
-		for (MazeCell cell : this.maze) {
+		for (MazeCell cell : this.cells) {
 			if (cell.isStart()) {
 				return cell;
 			}
@@ -32,7 +32,7 @@ public class Maze {
 		return null;
 	}
 	public MazeCell getExit() {
-		for (MazeCell cell : this.maze) {
+		for (MazeCell cell : this.cells) {
 			if (cell.isExit()) {
 				return cell;
 			}
